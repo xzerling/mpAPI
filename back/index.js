@@ -26,6 +26,8 @@ app.get("/", (req, res) => {
   res.json({ message: "Hola mundo." });
 });
 
+//carga de las rutas para los llamados a la tabla usuario
+require("./routes/usuario.routes")(app);
 //carga de las rutas para los llamados a la tabla medicion
 require("./routes/medicion.routes")(app);
 //carga de las rutas para los llamados a la tabla sensorRegistrado

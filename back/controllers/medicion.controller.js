@@ -56,6 +56,25 @@ exports.findOne = (req, res) => {
   
 };
 
+// Devuelve la ultima medicion de un id especifico 
+exports.findLastOne = async (req, res) => {
+    const id = req.params.id;
+
+    medicion = await db.sequelize.query(
+        'SELECT * FROM medicion WHERE idSensor = :id ORDER BY idMedicion DESC LIMIT 1', 
+        {
+            model: Medicion,
+            replacements: {id: id},
+            mapToModel: true // pass true here if you have any mapped fields
+        });
+
+        res.send(medicion);
+
+        
+    //console.log(medicion);
+
+  };
+
 // Actualiza una medicion por id especifico(solo para pruebas)
 exports.update = (req, res) => {
   

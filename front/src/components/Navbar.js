@@ -11,6 +11,8 @@ export class Navbar extends Component {
             <AppBar position='fixed'>
                 <Toolbar>
                 <Button color='inherit' component ={Link} to ='/login'>Login</Button>
+                <Button color='inherit' component ={Link} to ='/sensorRegistrado'>TablaSensores</Button>
+                <Button color='inherit' component ={Link} to ='/medicion'>TablaMediciones</Button>
                 <Button color='inherit' component ={Link} to = '/'>Home</Button>
                 </Toolbar>
             </AppBar>

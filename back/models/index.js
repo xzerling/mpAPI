@@ -19,7 +19,9 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
+db.usuario = require("./usuario.model.js")(sequelize, Sequelize);
 db.medicion = require("./medicion.model.js")(sequelize, Sequelize);
 db.sensorRegistrado = require("./sensorRegistrado.model.js")(sequelize, Sequelize);
+db.sensorMedicion = require("./sensorMedicion.model.js")(sequelize, Sequelize);
 
 module.exports = db;

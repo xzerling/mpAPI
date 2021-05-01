@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-    const sensorRegistrado = sequelize.define("sensorRegistrado", {
+    const sensorMedicion = sequelize.define("sensorMedicion", {
       sr_id: {
         type: Sequelize.INTEGER,
         primaryKey: true
@@ -23,13 +23,25 @@ module.exports = (sequelize, Sequelize) => {
       valorMinimo:{
         type: Sequelize.DOUBLE
       },
+      valor:{
+        type: Sequelize.DOUBLE
+      },
+      fecha:{
+        type: Sequelize.DATEONLY
+      },
+      hora:{
+        type: Sequelize.DATE(6)
+      },
+      idMedicion:{
+        type: Sequelize.INTEGER
+      }
     },
     {
       timestamps: false,
       freezeTableName: true,
       // define the table's name
-      tableName: 'sensorRegistrado'
+      tableName: 'sensorMedicion'
     });
   
-    return sensorRegistrado;
+    return sensorMedicion;
   };
