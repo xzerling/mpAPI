@@ -9,6 +9,11 @@ const { QueryTypes } = require('sequelize');
 const sensorMedicionModel = require("../models/sensorMedicion.model");
 var d3 = require("d3");
 
+const readline = require('readline').createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
 //Crea y gurada una nueva medicion del sensor(solo usar con HW)
 exports.create = (req, res) => {
     // Validate request
@@ -69,7 +74,8 @@ exports.getAllSensoresWithLastMed = async (req, res) => {
     "`sensorRegistrado`.`ubicacion`, "+
     "`sensorRegistrado`.`valorMaximo`, "+
     "`sensorRegistrado`.`valorMinimo`, "+
-    "t3.valor, t3.fecha, t3.hora, t3.idMedicion "+
+    "t3.valor, t3.fecha, t3.hora, t3.idMedicion, "+
+    "truncate(t3.valor/sensorRegistrado.valorMaximo, 3) as porcentaje "+
     "FROM sensorRegistrado, (SELECT t1.* FROM medicion as t1 "+
     "JOIN (SELECT idSensor, max(idMedicion) idMedicion, hora, valor FROM medicion group by idSensor) as t2 "+
     "ON t1.idMedicion = t2.idMedicion AND t1.idSensor = t2.idSensor) as t3 "+
@@ -97,7 +103,8 @@ exports.getOneSensorWithLastMed = async (req, res) => {
     "`sensorRegistrado`.`ubicacion`, "+
     "`sensorRegistrado`.`valorMaximo`, "+
     "`sensorRegistrado`.`valorMinimo`, "+
-    "t3.valor, t3.fecha, t3.hora, t3.idMedicion "+
+    "t3.valor, t3.fecha, t3.hora, t3.idMedicion, "+
+    "truncate(t3.valor/sensorRegistrado.valorMaximo, 3) as porcentaje "+
     "FROM sensorRegistrado, (SELECT t1.* FROM medicion as t1 "+
     "JOIN (SELECT idSensor, max(idMedicion) idMedicion, hora, valor FROM medicion group by idSensor) as t2 "+
     "ON t1.idMedicion = t2.idMedicion AND t1.idSensor = t2.idSensor) as t3 "+
@@ -173,13 +180,13 @@ exports.getAnMat = async (req, res) => {
             //console.log(result[i].valor)
             valores[i] = result[i].valor
         }
-        console.log(valores);
+        //console.log(valores);
         var max = d3.max(valores);
         var min = d3.min(valores);
-        var promedio = d3.mean(valores);
-        var mediana = d3.median(valores);
-        var varianza = d3.variance(valores);
-        var desvEst = d3.deviation(valores);
+        var promedio = Math.round( d3.mean(valores) * 1e2 ) / 1e2;
+        var mediana = Math.round(d3.median(valores) * 1e2)/1e2;
+        var varianza = Math.round(d3.variance(valores) * 1e2)/1e2;
+        var desvEst = Math.round(d3.deviation(valores) * 1e2)/1e2;
         var anMat = 
             {
                 min: min,
@@ -189,9 +196,9 @@ exports.getAnMat = async (req, res) => {
                 varianza: varianza,
                 desvEst: desvEst
             }
-        var json = JSON.stringify(anMat);
-        console.log(anMat);
-        console.log("min: "+min, "\n", "max: "+max,"\n", "devEst: ", desvEst+"\n", "varianza: "+varianza, "\n", "mediana: "+mediana, "\n", "promedio: "+promedio);
+        //var json = JSON.stringify(anMat);
+        //console.log(anMat);
+        //console.log("min: "+min, "\n", "max: "+max,"\n", "devEst: ", desvEst+"\n", "varianza: "+varianza, "\n", "mediana: "+mediana, "\n", "promedio: "+promedio);
         return res.status(201).send({
             anMat
         });
@@ -209,10 +216,10 @@ exports.getAllAnMat = async (req, res) => {
      
         var max = d3.max(valores);
         var min = d3.min(valores);
-        var promedio = d3.mean(valores);
-        var mediana = d3.median(valores);
-        var varianza = d3.variance(valores);
-        var desvEst = d3.deviation(valores);
+        var promedio = Math.round( d3.mean(valores) * 1e2 ) / 1e2;
+        var mediana = Math.round(d3.median(valores) * 1e2)/1e2;
+        var varianza = Math.round(d3.variance(valores) * 1e2)/1e2;
+        var desvEst = Math.round(d3.deviation(valores) * 1e2)/1e2;
         var anMat = 
             {
                 min: min,
@@ -270,6 +277,13 @@ exports.getAllAnMat = async (req, res) => {
         var n1 = analisis(nave1);
         var n2 = analisis(nave2);
         var n3 = analisis(nave3);
+
+        /*
+        readline.question('Who are you?', name => {
+            console.log(`Hey there ${name}!`);
+            readline.close();
+          });
+        */
         
         return res.status(201).send({
             n1, n2, n3
@@ -279,7 +293,7 @@ exports.getAllAnMat = async (req, res) => {
         res.status(500).send({
           message: "Error"
         });
-      });
+    });
 } 
 
 
