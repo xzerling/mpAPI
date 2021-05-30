@@ -40,6 +40,9 @@ module.exports = app => {
     //Ejecuta un analisis estadistico para todos los sensosres registrados
     router.get("/anmat/", sensorRegistrado.getAllAnMat);
 
+    // Elimina un sensor
+    router.delete("/:id", sensorRegistrado.delete);
+
     //ruta para poder llamar a la api
     app.use('/api/sensores', router);
 };

@@ -135,7 +135,8 @@ exports.getResNave = async (req, res) => {
         "`sensorRegistrado`.`lote`, "+
         "`sensorRegistrado`.`valorMaximo`, "+
         "`sensorRegistrado`.`valorMinimo`, "+
-       "TRUNCATE(AVG(t3.valor), 3) as promedio "+
+       "TRUNCATE(AVG(t3.valor), 2) as promedio, "+
+       "truncate(t3.valor/sensorRegistrado.valorMaximo, 2) as porcentaje "+
     "FROM sensorRegistrado, (SELECT t1.* FROM medicion as t1 "+
     "JOIN (SELECT idSensor, max(idMedicion) idMedicion, hora, valor FROM medicion group by idSensor) as t2 "+
     "ON t1.idMedicion = t2.idMedicion AND t1.idSensor = t2.idSensor) as t3 "+
@@ -364,26 +365,26 @@ exports.update = (req, res) => {
 };
 
 // Borra uun sensor registrado con su id especifico
-exports.delete = (req, res) => {
+
+exports.delete = async (req, res) => {
     const id = req.params.id;
-  
-    Usuario.destroy({
-      where: { sr_id: id }
+    SensorRegistrado.destroy({
+      where: { m_id: id }
     })
       .then(num => {
         if (num == 1) {
           res.send({
-            message: "Sensor Registrado was deleted successfully!"
+            message: "Sensor Eliminado!"
           });
         } else {
           res.send({
-            message: `Cannot delete Sensor Registrado with id=${id}. Maybe Sensor Registrado was not found!`
+            message: `No se pudo elminar el registro del sensor con id=${id}.!`
           });
         }
       })
       .catch(err => {
         res.status(500).send({
-          message: "Could not delete Sensor Registrado with id=" + id
+          message: "Could not delete Sensor with id=" + id
         });
       });
   };
