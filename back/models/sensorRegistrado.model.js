@@ -17,6 +17,9 @@ module.exports = (sequelize, Sequelize) => {
       ubicacion:{
         type: Sequelize.STRING
       },
+      lote:{
+        type: Sequelize.STRING
+      },
       valorMaximo:{
         type: Sequelize.DOUBLE
       },

@@ -30,6 +30,7 @@ exports.create = (req, res) => {
         nombre: req.body.nombre,
         cultivo: req.body.cultivo,
         ubicacion: req.body.ubicacion,
+        lote: req.body.lote,
         valorMaximo: req.body.valorMaximo,
         valorMinimo: req.body.valorMinimo
     };
@@ -72,6 +73,7 @@ exports.getAllSensoresWithLastMed = async (req, res) => {
     "`sensorRegistrado`.`nombre`, "+
     "`sensorRegistrado`.`cultivo`, "+
     "`sensorRegistrado`.`ubicacion`, "+
+    "`sensorRegistrado`.`lote`, "+
     "`sensorRegistrado`.`valorMaximo`, "+
     "`sensorRegistrado`.`valorMinimo`, "+
     "t3.valor, t3.fecha, t3.hora, t3.idMedicion, "+
@@ -80,7 +82,7 @@ exports.getAllSensoresWithLastMed = async (req, res) => {
     "JOIN (SELECT idSensor, max(idMedicion) idMedicion, hora, valor FROM medicion group by idSensor) as t2 "+
     "ON t1.idMedicion = t2.idMedicion AND t1.idSensor = t2.idSensor) as t3 "+
     "WHERE t3.idSensor = sensorRegistrado.m_id "+
-    "order by sr_id", {type: QueryTypes.SELECT})
+    "order by ubicacion", {type: QueryTypes.SELECT})
     .then (result =>{
         return res.status(201).send({
             result
@@ -101,6 +103,7 @@ exports.getOneSensorWithLastMed = async (req, res) => {
     "`sensorRegistrado`.`nombre`, "+
     "`sensorRegistrado`.`cultivo`, "+
     "`sensorRegistrado`.`ubicacion`, "+
+    "`sensorRegistrado`.`lote`, "+
     "`sensorRegistrado`.`valorMaximo`, "+
     "`sensorRegistrado`.`valorMinimo`, "+
     "t3.valor, t3.fecha, t3.hora, t3.idMedicion, "+
@@ -126,14 +129,42 @@ exports.getOneSensorWithLastMed = async (req, res) => {
 } 
 
 exports.getResNave = async (req, res) => {
+    seq.query("SELECT "+
+        "`sensorRegistrado`.`cultivo`, "+
+        "`sensorRegistrado`.`ubicacion`, "+
+        "`sensorRegistrado`.`lote`, "+
+        "`sensorRegistrado`.`valorMaximo`, "+
+        "`sensorRegistrado`.`valorMinimo`, "+
+       "TRUNCATE(AVG(t3.valor), 3) as promedio "+
+    "FROM sensorRegistrado, (SELECT t1.* FROM medicion as t1 "+
+    "JOIN (SELECT idSensor, max(idMedicion) idMedicion, hora, valor FROM medicion group by idSensor) as t2 "+
+    "ON t1.idMedicion = t2.idMedicion AND t1.idSensor = t2.idSensor) as t3 "+
+    "WHERE t3.idSensor = sensorRegistrado.m_id "+
+    "group by ubicacion",
+    {type: QueryTypes.SELECT}, {bind: { status: 'active' }},
+    {model: SensorMedicion, mapToModel: true, distinct:true })
+    .then (result =>{
+        return res.status(201).send({
+            result
+        });
+    })
+    .catch(err => {
+        res.status(500).send({
+          message: "Error"
+        });
+      });
+}
+
+exports.getOneResNave = async (req, res) => {
     const nave = req.params.nave;
     console.log(nave);
     seq.query("SELECT "+
         "`sensorRegistrado`.`cultivo`, "+
         "`sensorRegistrado`.`ubicacion`, "+
+        "`sensorRegistrado`.`lote`, "+
         "`sensorRegistrado`.`valorMaximo`, "+
         "`sensorRegistrado`.`valorMinimo`, "+
-       "AVG(t3.valor) as promedio "+
+        "TRUNCATE(AVG(t3.valor), 3) as promedio "+
     "FROM sensorRegistrado, (SELECT t1.* FROM medicion as t1 "+
     "JOIN (SELECT idSensor, max(idMedicion) idMedicion, hora, valor FROM medicion group by idSensor) as t2 "+
     "ON t1.idMedicion = t2.idMedicion AND t1.idSensor = t2.idSensor) as t3 "+
@@ -163,6 +194,7 @@ exports.getAnMat = async (req, res) => {
 	"`sensorRegistrado`.`m_id`, "+
         "`sensorRegistrado`.`cultivo`, "+
         "`sensorRegistrado`.`ubicacion`, "+
+        "`sensorRegistrado`.`lote`, "+
         "`sensorRegistrado`.`valorMaximo`, "+
         "`sensorRegistrado`.`valorMinimo`, "+
        "t3.valor "+
@@ -239,6 +271,7 @@ exports.getAllAnMat = async (req, res) => {
         "`sensorRegistrado`.`m_id`, "+
         "`sensorRegistrado`.`cultivo`, "+
         "`sensorRegistrado`.`ubicacion`, "+
+        "`sensorRegistrado`.`lote`, "+
         "`sensorRegistrado`.`valorMaximo`, "+
         "`sensorRegistrado`.`valorMinimo`, "+
        "t3.valor "+
