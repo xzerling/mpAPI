@@ -32,6 +32,8 @@ require("./routes/usuario.routes")(app);
 require("./routes/medicion.routes")(app);
 //carga de las rutas para los llamados a la tabla sensorRegistrado
 require("./routes/sensorRegistrado.routes")(app);
+//carga de las rutas para los llamados a la tabla alertas
+require("./routes/alertas.routes")(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 3002;
