@@ -28,8 +28,14 @@ module.exports = app => {
     //Realiza un resumen estadistico de los sensores de todas las naves
     router.get("/res/", sensorRegistrado.getResNave);
 
+    //Realiza un resumen estadistico de los sensores de todas las naves con sus sensores
+    router.get("/resns/", sensorRegistrado.getResNaveSen);
+
     //Selecciona a un sensor con su ultima medicion por su id
     router.get("/senmed/:id", sensorRegistrado.getOneSensorWithLastMed);
+
+    //Selecciona a un sensor con su ultima medicion por su ubicacion
+    router.get("/senmedubi/:nave", sensorRegistrado.getUbiSensorWithLastMed);
 
     //Actualiza los datos de un sensor registrado
     router.put("/:id", sensorRegistrado.update);

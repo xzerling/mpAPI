@@ -128,6 +128,39 @@ exports.getOneSensorWithLastMed = async (req, res) => {
     });
 } 
 
+exports.getUbiSensorWithLastMed = async (req, res) => {
+    const ubicacion = req.params.nave;
+    console.log(ubicacion);
+    seq.query("SELECT `sensorRegistrado`.`sr_id`, "+
+    "`sensorRegistrado`.`m_id`, "+
+    "`sensorRegistrado`.`nombre`, "+
+    "`sensorRegistrado`.`cultivo`, "+
+    "`sensorRegistrado`.`ubicacion`, "+
+    "`sensorRegistrado`.`lote`, "+
+    "`sensorRegistrado`.`valorMaximo`, "+
+    "`sensorRegistrado`.`valorMinimo`, "+
+    "t3.valor, t3.fecha, t3.hora, t3.idMedicion, "+
+    "truncate(t3.valor/sensorRegistrado.valorMaximo, 3) as porcentaje "+
+    "FROM sensorRegistrado, (SELECT t1.* FROM medicion as t1 "+
+    "JOIN (SELECT idSensor, max(idMedicion) idMedicion, hora, valor FROM medicion group by idSensor) as t2 "+
+    "ON t1.idMedicion = t2.idMedicion AND t1.idSensor = t2.idSensor) as t3 "+
+    "WHERE sensorRegistrado.ubicacion = "+`"${ubicacion}" `+
+    "AND t3.idSensor = sensorRegistrado.m_id "+
+    "order by m_id",
+    {type: QueryTypes.SELECT}, {bind: { status: 'active' }},
+    {model: SensorMedicion, mapToModel: true, distinct:true })
+    .then (sensores =>{
+        return res.status(201).send({
+            sensores
+        });
+    })
+    .catch(err => {
+        res.status(500).send({
+          message: "Error"
+        });
+    });
+} 
+
 exports.getResNave = async (req, res) => {
     seq.query("SELECT "+
         "`sensorRegistrado`.`cultivo`, "+
@@ -145,6 +178,7 @@ exports.getResNave = async (req, res) => {
     {type: QueryTypes.SELECT}, {bind: { status: 'active' }},
     {model: SensorMedicion, mapToModel: true, distinct:true })
     .then (result =>{
+        console.log(result[1].ubicacion);
         return res.status(201).send({
             result
         });
@@ -154,6 +188,35 @@ exports.getResNave = async (req, res) => {
           message: "Error"
         });
       });
+}
+
+exports.getResNaveSen = async (req, res) => {
+
+    var urlBase = "localhost:3002/api/sensores/senmedubi/";
+    const resumen = await seq.query("SELECT "+
+        "`sensorRegistrado`.`cultivo`, "+
+        "`sensorRegistrado`.`ubicacion`, "+
+        "`sensorRegistrado`.`lote`, "+
+        "`sensorRegistrado`.`valorMaximo`, "+
+        "`sensorRegistrado`.`valorMinimo`, "+
+       "TRUNCATE(AVG(t3.valor), 2) as promedio, "+
+       "truncate(t3.valor/sensorRegistrado.valorMaximo, 2) as porcentaje "+
+    "FROM sensorRegistrado, (SELECT t1.* FROM medicion as t1 "+
+    "JOIN (SELECT idSensor, max(idMedicion) idMedicion, hora, valor FROM medicion group by idSensor) as t2 "+
+    "ON t1.idMedicion = t2.idMedicion AND t1.idSensor = t2.idSensor) as t3 "+
+    "WHERE t3.idSensor = sensorRegistrado.m_id "+
+    "group by ubicacion",
+    {type: QueryTypes.SELECT}, {bind: { status: 'active' }},
+    {model: SensorMedicion, mapToModel: true, distinct:true });
+
+    for(i = 0; i < resumen.length; i++)
+    {
+        resumen[i]["url"] = urlBase+resumen[i].ubicacion;
+        //console.log(resumen);
+    }
+
+    return res.status(201).send({resumen});
+        
 }
 
 exports.getOneResNave = async (req, res) => {
