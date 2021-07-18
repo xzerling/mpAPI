@@ -22,6 +22,9 @@ module.exports = app => {
     //Todos los sensores con su ultima medicion asociada
     router.get("/senmed", sensorRegistrado.getAllSensoresWithLastMed);
 
+    //Todos las mediciones sin asignar a un sensor.
+    router.get("/disponible", sensorRegistrado.getMedDisp);
+
     //Realiza un resumen estadistico de los sensores de una nave
     router.get("/res/:nave", sensorRegistrado.getOneResNave);
     

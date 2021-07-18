@@ -249,6 +249,25 @@ exports.getOneResNave = async (req, res) => {
       });
 }
 
+exports.getMedDisp = async (req, res) => {
+    const nave = req.params.nave;
+    console.log(nave);
+    seq.query("SELECT idSensor FROM(SELECT idSensor FROM medicion GROUP BY idSensor) as t1 WHERE idSensor not in "+
+    "(SELECT m_id FROM sensorRegistrado GROUP BY m_id)",
+    {type: QueryTypes.SELECT}, {bind: { status: 'active' }},
+    {model: SensorMedicion, mapToModel: true, distinct:true })
+    .then (result =>{
+        return res.status(201).send({
+            result
+        });
+    })
+    .catch(err => {
+        res.status(500).send({
+          message: "Error"
+        });
+      });
+}
+
 exports.getAnMat = async (req, res) => {
 
     const nave = req.params.nave;
